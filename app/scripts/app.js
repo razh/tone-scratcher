@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module('toneScratcherApp', [])
-  .config(function ($routeProvider) {
+  .config(['$routeProvider', function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -10,4 +10,4 @@ angular.module('toneScratcherApp', [])
       .otherwise({
         redirectTo: '/'
       });
-  });
+  }]);
