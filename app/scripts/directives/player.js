@@ -1,19 +1,19 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .directive( 'player', function () {
+  .directive( 'player', [ 'note', function ( note ) {
     return {
       template: '<button>Play</button>',
       restrict: 'E',
-      link: function postLink( scope, element ) {
-        var play = scope.play,
-            rest = scope.rest;
+      link: function postLink( scope, element, attr ) {
+        var play = note.play,
+            rest = note.rest;
 
-        var wholeNote = scope.wholeNote,
-            halfNote = scope.halfNote,
-            quarterNote = scope.quarterNote,
-            eighthNote = scope.eighthNote,
-            sixteenthNote = scope.sixteenthNote;
+        var wholeNote     = note.wholeNote,
+            halfNote      = note.halfNote,
+            quarterNote   = note.quarterNote,
+            eighthNote    = note.eighthNote,
+            sixteenthNote = note.sixteenthNote;
 
         element.bind( 'click', function() {
           play( 'E3', halfNote ).start()
@@ -58,4 +58,4 @@ angular.module( 'toneScratcherApp' )
         });
       }
     };
-  });
+  }]);
