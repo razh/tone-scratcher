@@ -1,9 +1,9 @@
 'use strict';
 
-angular.module('toneScratcherApp', [])
-  .config(['$routeProvider', function ($routeProvider) {
+angular.module( 'toneScratcherApp', [] )
+  .config( [ '$routeProvider', function( $routeProvider ) {
     $routeProvider
-      .when('/', {
+      .when( '/', {
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
       })
