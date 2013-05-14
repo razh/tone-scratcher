@@ -9,11 +9,13 @@ angular.module( 'toneScratcherApp' )
         var play = note.play,
             rest = note.rest;
 
-        var wholeNote     = note.wholeNote,
-            halfNote      = note.halfNote,
-            quarterNote   = note.quarterNote,
-            eighthNote    = note.eighthNote,
-            sixteenthNote = note.sixteenthNote;
+        var beat = note.getBeat( 1500 );
+
+        var wholeNote     = beat.wholeNote,
+            halfNote      = beat.halfNote,
+            quarterNote   = beat.quarterNote,
+            eighthNote    = beat.eighthNote,
+            sixteenthNote = beat.sixteenthNote;
 
         element.bind( 'click', function() {
           play( 'E3', halfNote ).start()

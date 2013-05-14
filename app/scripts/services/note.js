@@ -5,7 +5,7 @@ angular.module( 'toneScratcherApp' )
 
     var audioContext = new window.webkitAudioContext();
 
-    var names = ['C', 'C#', 'D', 'D#', 'E', 'E#', 'F', 'F#', 'G', 'A', 'A#', 'B'],
+    var names = [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ],
         regex = /(^[A-G])(b|\#)?([0-9]?$)/;
 
     // Utility functions.
@@ -90,14 +90,6 @@ angular.module( 'toneScratcherApp' )
       return this;
     };
 
-    var beatDuration = 1500;
-
-    var wholeNote     = beatDuration,
-        halfNote      = 0.5 * wholeNote,
-        quarterNote   = 0.5 * halfNote,
-        eighthNote    = 0.5 * quarterNote,
-        sixteenthNote = 0.5 * eighthNote;
-
     // Public API.
     return {
       play: function( freq, duration ) {
@@ -108,13 +100,21 @@ angular.module( 'toneScratcherApp' )
         return new Rest( duration );
       },
 
+      Note: Note,
+      Rest: Rest,
+
       halfStepsFromA4: halfStepsFromA4,
       freqFromString:  freqFromString,
 
-      wholeNote:     wholeNote,
-      halfNote:      halfNote,
-      quarterNote:   quarterNote,
-      eighthNote:    eighthNote,
-      sixteenthNote: sixteenthNote
+      getBeat: function( beatDuration ) {
+        beatDuration = beatDuration || 1000;
+        return {
+          wholeNote:     beatDuration,
+          halfNote:      0.5    * beatDuration,
+          quarterNote:   0.25   * beatDuration,
+          eighthNote:    0.125  * beatDuration,
+          sixteenthNote: 0.0625 * beatDuration
+        };
+      }
     };
   });
