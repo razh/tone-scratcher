@@ -43,6 +43,15 @@ describe( 'Service: note', function() {
     expect( note.freqFromString( 'A0' ) ).toBeCloseTo( 27.5 );
   });
 
+  it( 'should return a new Chord object when chord() is called', function() {
+    var testChord = note.chord( [ 'C4', 'E4', 'G4' ], 1000 );
+    expect( testChord instanceof note.Chord ).toBeTruthy();
+    expect( testChord.oscillators[0].frequency.value ).toBeCloseTo( 261.626 );
+    expect( testChord.oscillators[1].frequency.value ).toBeCloseTo( 329.628 );
+    expect( testChord.oscillators[2].frequency.value ).toBeCloseTo( 391.995 );
+    expect( testChord.duration ).toBe( 1000 );
+  });
+
   it( 'should return a new Note object when play() is called', function() {
     var testNote = note.play( 'A4', 1000 );
     expect( testNote instanceof note.Note ).toBeTruthy();

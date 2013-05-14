@@ -3,7 +3,7 @@
 angular.module( 'toneScratcherApp' )
   .factory( 'note', function() {
 
-    var audioContext = new window.webkitAudioContext();
+    var audioContext = new webkitAudioContext();
 
     var names = [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ],
         regex = /(^[A-G])(b|\#)?([0-9]?$)/;
@@ -74,24 +74,69 @@ angular.module( 'toneScratcherApp' )
 
       this.oscillator.type = 0;
       this.oscillator.frequency.value = freqFromString( freq );
-      this.oscillator.connect( audioContext.destination );
     }
 
     Note.prototype = new Rest();
     Note.prototype.constructor = Note;
 
     Note.prototype.start = function() {
+      this.oscillator.connect( audioContext.destination );
       this.oscillator.start(0);
       return Rest.prototype.start.call( this );
     };
 
     Note.prototype.stop = function() {
       this.oscillator.stop(0);
+      this.oscillator.disconnect(0);
       return this;
     };
 
+
+    // Allows us to play more than one note.
+    function Chord( freqArray, duration ) {
+      Rest.call( this, duration );
+
+      this.oscillators = [];
+
+      var oscillator;
+      for ( var i = 0, il = freqArray.length; i < il; i++ ) {
+        oscillator = audioContext.createOscillator();
+
+        oscillator.type = 0;
+        oscillator.frequency.value = freqFromString( freqArray[i] );
+
+        this.oscillators.push( oscillator );
+      }
+    }
+
+    Chord.prototype = new Rest();
+    Chord.prototype.constructor = Chord;
+
+    Chord.prototype.start = function() {
+      angular.forEach( this.oscillators, function( oscillator ) {
+        oscillator.connect( audioContext.destination );
+        oscillator.start(0);
+      });
+
+      return Rest.prototype.start.call( this );
+    };
+
+    Chord.prototype.stop = function() {
+      angular.forEach( this.oscillators, function( oscillator ) {
+        oscillator.stop(0);
+        oscillator.disconnect(0);
+      });
+
+      return this;
+    };
+
+
     // Public API.
     return {
+      chord: function( freqArray, duration ) {
+        return new Chord( freqArray, duration );
+      },
+
       play: function( freq, duration ) {
         return new Note( freq, duration );
       },
@@ -100,8 +145,9 @@ angular.module( 'toneScratcherApp' )
         return new Rest( duration );
       },
 
-      Note: Note,
-      Rest: Rest,
+      Chord: Chord,
+      Note:  Note,
+      Rest:  Rest,
 
       halfStepsFromA4: halfStepsFromA4,
       freqFromString:  freqFromString,

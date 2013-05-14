@@ -6,8 +6,9 @@ angular.module( 'toneScratcherApp' )
       template: '<button>Play</button>',
       restrict: 'E',
       link: function postLink( scope, element, attr ) {
-        var play = note.play,
-            rest = note.rest;
+        var chord = note.chord,
+            play  = note.play,
+            rest  = note.rest;
 
         var beat = note.getBeat( 1500 );
 
@@ -25,6 +26,7 @@ angular.module( 'toneScratcherApp' )
           .then( play, 'D5', quarterNote )
           .then( play, 'A4', quarterNote )
           .then( play, 'B4', 2 * wholeNote )
+          .then( chord, [ 'C4', 'E4', 'G4' ], wholeNote )
 
           .then( play, 'B5', quarterNote )
           .then( play, 'G5', quarterNote )
