@@ -82,11 +82,11 @@ angular.module( 'toneScratcherApp' )
     Note.prototype.start = function() {
       this.oscillator.connect( audioContext.destination );
       this.oscillator.start(0);
+      this.oscillator.stop( this.duration );
       return Rest.prototype.start.call( this );
     };
 
     Note.prototype.stop = function() {
-      this.oscillator.stop(0);
       this.oscillator.disconnect(0);
       return this;
     };

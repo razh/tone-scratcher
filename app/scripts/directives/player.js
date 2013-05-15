@@ -18,7 +18,7 @@ angular.module( 'toneScratcherApp' )
             eighthNote    = beat.eighthNote,
             sixteenthNote = beat.sixteenthNote;
 
-        element.bind( 'click', function() {
+        function melody() {
           play( 'E3', halfNote ).start()
           .then( play, 'B4', quarterNote )
           .then( play, 'C6', quarterNote )
@@ -26,7 +26,6 @@ angular.module( 'toneScratcherApp' )
           .then( play, 'D5', quarterNote )
           .then( play, 'A4', quarterNote )
           .then( play, 'B4', 2 * wholeNote )
-          .then( chord, [ 'C4', 'E4', 'G4' ], wholeNote )
 
           .then( play, 'B5', quarterNote )
           .then( play, 'G5', quarterNote )
@@ -59,6 +58,14 @@ angular.module( 'toneScratcherApp' )
           .then( play, 'G5', quarterNote / 3 )
           .then( play, 'F#5', quarterNote / 3 )
           .then( play, 'G5', halfNote );
+        };
+
+        function bassLine() {
+
+        }
+
+        element.bind( 'click', function() {
+          melody();
         });
       }
     };
