@@ -3,7 +3,11 @@
 angular.module( 'toneScratcherApp' )
   .factory( 'note', function() {
 
-    var audioContext = new webkitAudioContext();
+    var audioContext = new webkitAudioContext(),
+        gain = audioContext.createGainNode();
+
+    gain.connect( audioContext.destination );
+    gain.gain.value = 0.1;
 
     var names = [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ],
         regex = /(^[A-G])(b|\#)?([0-9]?$)/;
@@ -80,7 +84,7 @@ angular.module( 'toneScratcherApp' )
     Note.prototype.constructor = Note;
 
     Note.prototype.start = function() {
-      this.oscillator.connect( audioContext.destination );
+      this.oscillator.connect( gain );
       this.oscillator.start(0);
       this.oscillator.stop( this.duration );
       return Rest.prototype.start.call( this );
@@ -114,7 +118,7 @@ angular.module( 'toneScratcherApp' )
 
     Chord.prototype.start = function() {
       angular.forEach( this.oscillators, function( oscillator ) {
-        oscillator.connect( audioContext.destination );
+        oscillator.connect( gain );
         oscillator.start(0);
       });
 

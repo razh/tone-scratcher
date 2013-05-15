@@ -9,32 +9,21 @@ angular.module( 'toneScratcherApp' )
         play = note.play,
         rest = note.rest;
 
-    /**
-     * Returns the linear interpolation of a to b by alpha.
-     * @param  {[type]} a
-     * @param  {[type]} b
-     * @param  {[type]} alpha
-     * @return {[type]}
-     */
-    function lerp( a, b, alpha ) {
-      return ( 1 - alpha ) * a + alpha * b;
-    }
-
     function Instrument( options ) {
       // Whether the Instrument will lerp between notes.
-      this.portamento = options.portamento || false;
+      this.glideTime = options.glideTime || 0;
 
       this.frequency = options.frequency || 440;
-      this.type = options.type || 0;
 
       this.oscillator = audioContext.createOscillator();
+      this.oscillator.type = options.type || 0;
 
       this.currentFrequency = this.frequency;
       this.targetFrequency = this.frequency + 100;
     }
 
     Instrument.prototype.play = function() {
-
+      this.oscillator.start();
     };
 
     /**

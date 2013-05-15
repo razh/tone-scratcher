@@ -4843,3 +4843,43 @@ a.label:hover, a.label:focus, a.badge:hover, a.badge:focus {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box; }
+
+.theremin {
+  background-color: #7f0000;
+  width: 700px;
+  height: 200px; }
+
+.note-view {
+  background-color: green;
+  position: absolute;
+  height: 200px;
+  width: 20px; }
+  .note-view:before {
+    content: attr(id); }
+
+#E3 {
+  left: 148.88px; }
+
+#B4 {
+  left: 346.34px; }
+
+#C6 {
+  left: 677.9px; }
+
+#B5 {
+  left: 642.68px; }
+
+#D5 {
+  left: 402.38px; }
+
+#A4 {
+  left: 314px; }
+
+#G5 {
+  left: 520.4px; }
+
+#C5 {
+  left: 363.98px; }
+
+#A3 {
+  left: 182px; }
