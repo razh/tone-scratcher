@@ -6,8 +6,17 @@ angular.module( 'toneScratcherApp' )
     var audioContext = new webkitAudioContext(),
         gain = audioContext.createGainNode();
 
+    var MAX_GAIN = 0.1,
+        MIN_GAIN = 0;
+
     gain.connect( audioContext.destination );
-    gain.gain.value = 0.1;
+    gain.gain.value = MIN_GAIN;
+
+    var oscillator = audioContext.createOscillator();
+
+    oscillator.type = 0;
+    oscillator.connect( gain );
+    oscillator.start(0);
 
     var names = [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ],
         regex = /(^[A-G])(b|\#)?([0-9]?$)/;
@@ -71,27 +80,22 @@ angular.module( 'toneScratcherApp' )
     };
 
 
-    function Note( freq, duration ) {
+    function Note( noteName, duration ) {
+      this.freq = freqFromString( noteName );
       Rest.call( this, duration );
-
-      this.oscillator = audioContext.createOscillator();
-
-      this.oscillator.type = 0;
-      this.oscillator.frequency.value = freqFromString( freq );
     }
 
     Note.prototype = new Rest();
     Note.prototype.constructor = Note;
 
     Note.prototype.start = function() {
-      this.oscillator.connect( gain );
-      this.oscillator.start(0);
-      this.oscillator.stop( this.duration );
+      oscillator.frequency.value = this.freq;
+      gain.gain.value = MAX_GAIN;
       return Rest.prototype.start.call( this );
     };
 
     Note.prototype.stop = function() {
-      this.oscillator.disconnect(0);
+      gain.gain.value = MIN_GAIN;
       return this;
     };
 
@@ -101,6 +105,7 @@ angular.module( 'toneScratcherApp' )
       Rest.call( this, duration );
 
       this.oscillators = [];
+      this.gain = audioContext.createGainNode();
 
       var oscillator;
       for ( var i = 0, il = freqArray.length; i < il; i++ ) {
