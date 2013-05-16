@@ -4845,12 +4845,14 @@ a.label:hover, a.label:focus, a.badge:hover, a.badge:focus {
   box-sizing: border-box; }
 
 .theremin {
-  background-color: #7f0000;
+  border-radius: 10px;
+  background-color: #e74c3c;
   width: 700px;
   height: 200px; }
 
 .note-view {
-  background-color: green;
+  background-color: black;
+  color: white;
   position: absolute;
   height: 200px;
   width: 20px; }
