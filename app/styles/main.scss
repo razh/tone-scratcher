@@ -2,12 +2,21 @@
 
 $height: 200px;
 $scale-factor: 0.6;
-$hero-unit-padding: 60px;
+$margin: 60px;
 
 $note-width: 20px;
-$note-offset: $hero-unit-padding - 0.5 * $note-width;
+$note-offset: $margin - 0.5 * $note-width;
+
+.container {
+  width: auto;
+}
+
+player {
+  margin: $margin;
+}
 
 .theremin {
+  margin: $margin;
   border-radius: 10px;
   background-color: #e74c3c;
   width: 700px;

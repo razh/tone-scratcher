@@ -4844,7 +4844,14 @@ a.label:hover, a.label:focus, a.badge:hover, a.badge:focus {
   -moz-box-sizing: border-box;
   box-sizing: border-box; }
 
+.container {
+  width: auto; }
+
+player {
+  margin: 60px; }
+
 .theremin {
+  margin: 60px;
   border-radius: 10px;
   background-color: #e74c3c;
   width: 700px;
