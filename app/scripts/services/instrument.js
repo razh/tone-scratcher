@@ -1,9 +1,7 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .factory( 'instrument', [ 'note', function( note ) {
-
-    var audioContext = new webkitAudioContext();
+  .factory( 'instrument', [ 'audioContext', 'note', function( audioContext, note ) {
 
     var chord = note.chord,
         play = note.play,

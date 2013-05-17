@@ -1,14 +1,14 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .directive( 'theremin', function() {
+  .directive( 'theremin', [ 'audioContext', function( audioContext ) {
     return {
       template: '<div class="theremin" ng-mousemove=update($event) ng-mouseenter="start()" ng-mouseleave="stop()" ng-transclude></div>',
       restrict: 'E',
       transclude: true,
       link: function postLink( scope, element, attrs ) {
-        var audioContext = new webkitAudioContext(),
-            gain = audioContext.createGainNode(),
+
+        var gain = audioContext.createGainNode(),
             oscillator = audioContext.createOscillator();
 
         var tuna = new Tuna( audioContext );
@@ -30,7 +30,6 @@ angular.module( 'toneScratcherApp' )
         gain.gain.value = 0;
 
         oscillator.type = 0;
-        oscillator.frequency.value = scaleFactor * ( event.pageX - element[0].offsetLeft );
         oscillator.connect( gain );
         oscillator.start(0);
 
@@ -45,12 +44,12 @@ angular.module( 'toneScratcherApp' )
         };
 
         scope.update = function( event ) {
-          oscillator.frequency.value = scaleFactor * ( event.pageX - element[0].offsetLeft );
+          oscillator.frequency.value = scaleFactor * ( event.pageX || 0 - element[0].offsetLeft || 0 ) - 100;
           console.log( oscillator.frequency.value );
         };
       }
     };
-  })
+  }])
   .directive( 'noteView', function() {
     return {
       restrict: 'C',
@@ -61,11 +60,11 @@ angular.module( 'toneScratcherApp' )
           console.log( scope.frequency.value );
         };
 
-        element.bind( 'mouseenter', function( event ) {
+        element.bind( 'mouseenter', function() {
           element.bind( 'mousemove', onMouseMove );
         });
 
-        element.bind( 'mouseleave', function( event ) {
+        element.bind( 'mouseleave', function() {
           element.unbind( 'mousemove', onMouseMove );
         });
       }

@@ -62,13 +62,14 @@ float Shape(vec3 q) {
   return v;
 }
 
-void FogStep(float dist, vec3 fog_absorb, vec3 fog_reemit, inout vec3 colour, inout vec3 multiplier){ // calculates fog colour, and the multiplier for the colour of item behind the fog. If you do two intervals consecutively it will calculate the result correctly.
+ // calculates fog colour, and the multiplier for the colour of item behind the fog. If you do two intervals consecutively it will calculate the result correctly.
+void FogStep(float dist, vec3 fog_absorb, vec3 fog_reemit, inout vec3 colour, inout vec3 multiplier) {
   vec3 fog = exp(-dist * fog_absorb);
   colour += multiplier * (vec3(1.0) - fog) * fog_reemit;
   multiplier *= fog;
 }
 
-const vec3 towards_sun=vec3(1, 1, 5.0);
+const vec3 towards_sun = vec3(1, 1, 5.0);
 
 void RaytraceFoggy(vec3 dir, float max_dist, inout vec3 colour, inout vec3 multiplier){
   vec3 org = camera_matrix[3].xyz; // origin of the ray
@@ -82,19 +83,19 @@ void RaytraceFoggy(vec3 dir, float max_dist, inout vec3 colour, inout vec3 multi
   float step_scaling = base_step_scaling;
 
   const float extra_step = min_step_size;
-  for (int i=0; i < number_of_steps; i++) {
+  for (int i = 0; i < number_of_steps; i++) {
     old_d = d;
     float shape_value = Shape(q);
     float density = -shape_value;
     d = max(shape_value * step_scaling, 0.0);
     float step_dist = d + extra_step;
 
-    if (density > 0.0){
+    if (density > 0.0) {
       float brightness = exp(-0.6 * density);
       FogStep(step_dist * 0.2, clamp(density, 0.0, 1.0) * vec3(1, 1, 1), vec3(1) * brightness, colour, multiplier);
     }
 
-    if (dist > max_dist || multiplier.x < 0.01){
+    if (dist > max_dist || multiplier.x < 0.01) {
       return;
     }
 

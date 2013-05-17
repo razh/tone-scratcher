@@ -1,22 +1,25 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .factory( 'note', function() {
+  .factory( 'note', [ 'audioContext', function( audioContext ) {
 
-    var audioContext = new webkitAudioContext(),
-        gain = audioContext.createGainNode();
+    var gain, oscillator;
 
     var MAX_GAIN = 0.1,
         MIN_GAIN = 0;
 
-    gain.connect( audioContext.destination );
-    gain.gain.value = MIN_GAIN;
+    if ( audioContext ) {
+      gain = audioContext.createGainNode();
 
-    var oscillator = audioContext.createOscillator();
+      gain.connect( audioContext.destination );
+      gain.gain.value = MIN_GAIN;
 
-    oscillator.type = 0;
-    oscillator.connect( gain );
-    oscillator.start(0);
+      oscillator = audioContext.createOscillator();
+
+      oscillator.type = 0;
+      oscillator.connect( gain );
+      oscillator.start(0);
+    }
 
     var names = [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ],
         regex = /(^[A-G])(b|\#)?([0-9]?$)/;
@@ -89,8 +92,10 @@ angular.module( 'toneScratcherApp' )
     Note.prototype.constructor = Note;
 
     Note.prototype.start = function() {
-      oscillator.frequency.value = this.freq;
-      gain.gain.value = MAX_GAIN;
+      if ( audioContext ) {
+        oscillator.frequency.value = this.freq;
+        gain.gain.value = MAX_GAIN;
+      }
       return Rest.prototype.start.call( this );
     };
 
@@ -172,4 +177,4 @@ angular.module( 'toneScratcherApp' )
         };
       }
     };
-  });
+  }]);

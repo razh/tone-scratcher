@@ -9,6 +9,7 @@ describe( 'Service: instrument', function () {
   var instrument;
   beforeEach( inject( function( _instrument_ ) {
     instrument = _instrument_;
+    audioContext = null;
   }));
 
   it( 'should do something', function () {
