@@ -23,8 +23,6 @@ angular.module( 'toneScratcherApp' )
           bypass: 0
         });
 
-        var scaleFactor = 1 / 0.6;
-
         convolver.connect( audioContext.destination );
         gain.connect( convolver.input );
         gain.gain.value = 0;
@@ -32,6 +30,8 @@ angular.module( 'toneScratcherApp' )
         oscillator.type = 0;
         oscillator.connect( gain );
         oscillator.start(0);
+
+        var scaleFactor = 1 / 0.6;
 
         scope.frequency = oscillator.frequency;
 
