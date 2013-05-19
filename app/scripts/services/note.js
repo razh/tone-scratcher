@@ -5,7 +5,7 @@ angular.module( 'toneScratcherApp' )
 
     var gain, oscillator;
 
-    var MAX_GAIN = 0.1,
+    var MAX_GAIN = 0.05,
         MIN_GAIN = 0;
 
     if ( audioContext ) {

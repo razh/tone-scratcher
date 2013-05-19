@@ -10,7 +10,7 @@ angular.module( 'toneScratcherApp' )
             play  = note.play,
             rest  = note.rest;
 
-        var beat = note.getBeat( 1500 );
+        var beat = note.getBeat( 2667 ); // 90 BPM 4/4.
 
         var wholeNote     = beat.wholeNote,
             halfNote      = beat.halfNote,
@@ -30,6 +30,7 @@ angular.module( 'toneScratcherApp' )
           .then( play, 'B5', quarterNote )
           .then( play, 'G5', quarterNote )
           .then( play, 'B4', halfNote )
+
           .then( play, 'D5', quarterNote + eighthNote + sixteenthNote )
           .then( play, 'C5', sixteenthNote )
           .then( play, 'B4', halfNote )
@@ -48,8 +49,8 @@ angular.module( 'toneScratcherApp' )
           .then( rest, halfNote )
           .then( play, 'A5', quarterNote )
           .then( play, 'C6', quarterNote )
-          .then( play, 'B5', wholeNote + halfNote )
 
+          .then( play, 'B5', wholeNote + halfNote )
           .then( play, 'G5', quarterNote )
           .then( play, 'B5', quarterNote )
 
@@ -57,7 +58,34 @@ angular.module( 'toneScratcherApp' )
           .then( play, 'A5', quarterNote / 3 )
           .then( play, 'G5', quarterNote / 3 )
           .then( play, 'F#5', quarterNote / 3 )
-          .then( play, 'G5', halfNote );
+          .then( play, 'G5', halfNote )
+
+          .then( play, 'G5', halfNote )
+          .then( play, 'G4', quarterNote )
+          .then( play, 'D5', quarterNote )
+
+          .then( play, 'E5', quarterNote )
+          .then( play, 'E5', quarterNote / 3 )
+          .then( play, 'D5', quarterNote / 3 )
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'D5', quarterNote + eighthNote )
+          .then( play, 'G4', eighthNote + sixteenthNote )
+          .then( play, 'D5', sixteenthNote )
+
+          .then( play, 'E5', quarterNote )
+          .then( play, 'E5', eighthNote / 3 )
+          .then( play, 'D5', eighthNote / 3 )
+          .then( play, 'C5', eighthNote / 3 )
+          .then( play, 'D5', quarterNote + eighthNote )
+          .then( play, 'G5', eighthNote + sixteenthNote )
+          .then( play, 'B5', sixteenthNote )
+
+          .then( play, 'A5', halfNote + quarterNote )
+          .then( play, 'A5', eighthNote / 3 )
+          .then( play, 'G5', eighthNote / 3 )
+          .then( play, 'F#5', eighthNote / 3 )
+
+          .then( play, 'G5', 2 * wholeNote );
         };
 
         function bassLine() {
