@@ -10,7 +10,7 @@ angular.module( 'toneScratcherApp' )
             play  = note.play,
             rest  = note.rest;
 
-        var beat = note.getBeat( 2667 ); // 90 BPM 4/4.
+        var beat = note.getBeat( 1500 ); // 90 BPM 4/4.
 
         var wholeNote     = beat.wholeNote,
             halfNote      = beat.halfNote,
