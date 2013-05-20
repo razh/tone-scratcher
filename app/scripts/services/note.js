@@ -10,7 +10,6 @@ angular.module( 'toneScratcherApp' )
     // ------------------
     // Number of half steps away from A4.
     function halfStepsFromA4( freq ) {
-      console.log( 'freq: ' + freq );
       // Memoize?
       var symbols = regex.exec( freq );
 
@@ -80,8 +79,7 @@ angular.module( 'toneScratcherApp' )
 
     Note.prototype.start = function() {
       if ( this.voice ) {
-        this.voice.setFrequency( this.freq );
-        this.voice.start();
+        this.voice.setFrequency( this.freq ).start();
       }
 
       return Rest.prototype.start.call( this );

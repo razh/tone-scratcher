@@ -17,11 +17,31 @@ angular.module( 'toneScratcherApp' )
             eighthNote    = beat.eighthNote,
             sixteenthNote = beat.sixteenthNote;
 
-        var voice = new Voice({});
-        voice.connect( audioContext.destination );
+        var tuna = new Tuna( audioContext );
 
-        function melody() {
-          voice.start()
+        // Voices.
+        var sawVoice = new Voice({
+          type: 1,
+          maxGain: 0.025
+        });
+
+        var sineVoice = new Voice();
+
+        // Reverb.
+        var convolver = new tuna.Convolver({
+          highCut: 22050, // 20 to 22050
+          lowCut: 20, // 20 to 22050
+          dryLevel: 1, // 0 to 1+
+          wetLevel: 1, // 0 to 1+
+          level: 1, // 0 to 1+, adjusts total output of both wet and dry
+          impulse: 'scripts/lib/tuna/impulses/impulse_rev.wav', // the path to your impulse response
+          bypass: 0
+        });
+
+        convolver.connect( audioContext.destination );
+
+        function melody( voice ) {
+          voice.connect( convolver.input )
           .then( play, 'E3', halfNote )
           .then( play, 'B4', quarterNote )
           .then( play, 'C6', quarterNote )
@@ -96,7 +116,7 @@ angular.module( 'toneScratcherApp' )
         }
 
         element.bind( 'click', function() {
-          melody();
+          melody( sineVoice );
           bassLine();
         });
       }
