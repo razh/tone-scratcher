@@ -1,13 +1,12 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .directive( 'player', [ 'note', function ( note ) {
+  .directive( 'player', [ 'audioContext', 'note', 'voice', function( audioContext, note, Voice ) {
     return {
       template: '<button>Play</button>',
       restrict: 'E',
       link: function postLink( scope, element, attr ) {
-        var chord = note.chord,
-            play  = note.play,
+        var play  = note.play,
             rest  = note.rest;
 
         var beat = note.getBeat( 1500 ); // 90 BPM 4/4.
@@ -18,8 +17,12 @@ angular.module( 'toneScratcherApp' )
             eighthNote    = beat.eighthNote,
             sixteenthNote = beat.sixteenthNote;
 
+        var voice = new Voice({});
+        voice.connect( audioContext.destination );
+
         function melody() {
-          play( 'E3', halfNote ).start()
+          voice.start()
+          .then( play, 'E3', halfNote )
           .then( play, 'B4', quarterNote )
           .then( play, 'C6', quarterNote )
           .then( play, 'B5', wholeNote + halfNote )
@@ -86,7 +89,7 @@ angular.module( 'toneScratcherApp' )
           .then( play, 'F#5', eighthNote / 3 )
 
           .then( play, 'G5', 2 * wholeNote );
-        };
+        }
 
         function bassLine() {
 
@@ -94,6 +97,7 @@ angular.module( 'toneScratcherApp' )
 
         element.bind( 'click', function() {
           melody();
+          bassLine();
         });
       }
     };

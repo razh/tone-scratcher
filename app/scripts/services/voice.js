@@ -10,10 +10,11 @@ angular.module( 'toneScratcherApp' )
       this.oscillator = audioContext.createOscillator();
       this.gain = audioContext.createGainNode();
 
-      this.gain.gain.value = this.minGain;
+      this.gain.gain.value = this.MIN_GAIN;
 
       this.oscillator.type = options.type || 0;
       this.oscillator.connect( this.gain );
+      this.oscillator.start(0);
     }
 
     Voice.prototype.connect = function( node ) {
@@ -22,7 +23,7 @@ angular.module( 'toneScratcherApp' )
     };
 
     Voice.prototype.start = function() {
-      this.oscillator.start(0);
+      this.gain.gain.value = this.MAX_GAIN;
       return this;
     };
 
@@ -31,9 +32,20 @@ angular.module( 'toneScratcherApp' )
       return this;
     };
 
-    Voice.prototype.then = function() { return this; };
-
-    return {
-      Voice: Voice
+    Voice.prototype.setFrequency = function( freq ) {
+      this.oscillator.frequency.value = freq;
+      return this;
     };
+
+    Voice.prototype.then = function() {
+      var args = Array.prototype.slice.call( arguments ),
+          callback = args.slice( 0, 1 )[0];
+
+      args.push( this );
+      callback.apply( this, args ).start();
+
+      return this;
+    };
+
+    return Voice;
   }]);

@@ -1,38 +1,7 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .factory( 'note', [ 'audioContext', function( audioContext ) {
-
-    var gain, oscillator;
-
-    var MAX_GAIN = 0.05,
-        MIN_GAIN = 0;
-
-    if ( audioContext ) {
-      var tuna = new Tuna( audioContext );
-
-      var convolver = new tuna.Convolver({
-        highCut: 22050, // 20 to 22050
-        lowCut: 20, // 20 to 22050
-        dryLevel: 1, // 0 to 1+
-        wetLevel: 1, // 0 to 1+
-        level: 1, // 0 to 1+, adjusts total output of both wet and dry
-        impulse: 'scripts/lib/tuna/impulses/impulse_rev.wav', // the path to your impulse response
-        bypass: 0
-      });
-
-      convolver.connect( audioContext.destination );
-
-      gain = audioContext.createGainNode();
-      gain.connect( convolver.input );
-      gain.gain.value = MIN_GAIN;
-
-      oscillator = audioContext.createOscillator();
-
-      oscillator.type = 0;
-      oscillator.connect( gain );
-      oscillator.start(0);
-    }
+  .factory( 'note', function() {
 
     var names = [ 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B' ],
         regex = /(^[A-G])(b|\#)?([0-9]?$)/;
@@ -41,6 +10,7 @@ angular.module( 'toneScratcherApp' )
     // ------------------
     // Number of half steps away from A4.
     function halfStepsFromA4( freq ) {
+      console.log( 'freq: ' + freq );
       // Memoize?
       var symbols = regex.exec( freq );
 
@@ -67,8 +37,10 @@ angular.module( 'toneScratcherApp' )
 
     // Note objects.
     // -------------
-    function Rest( duration ) {
-      this.duration = duration;
+    function Rest( duration, voice ) {
+      this.duration = duration || 0;
+      this.voice = voice || null;
+
       this.next = null;
     }
 
@@ -91,68 +63,34 @@ angular.module( 'toneScratcherApp' )
       var args = Array.prototype.slice.call( arguments ),
           callback = args.splice( 0, 1 )[0];
 
+      args.push( this.voice );
       this.next = callback.apply( this, args );
+
       return this.next;
     };
 
 
-    function Note( noteName, duration ) {
+    function Note( noteName, duration, voice ) {
       this.freq = freqFromString( noteName );
-      Rest.call( this, duration );
+      Rest.call( this, duration, voice );
     }
 
     Note.prototype = new Rest();
     Note.prototype.constructor = Note;
 
     Note.prototype.start = function() {
-      if ( audioContext ) {
-        oscillator.frequency.value = this.freq;
-        gain.gain.value = MAX_GAIN;
+      if ( this.voice ) {
+        this.voice.setFrequency( this.freq );
+        this.voice.start();
       }
+
       return Rest.prototype.start.call( this );
     };
 
     Note.prototype.stop = function() {
-      gain.gain.value = MIN_GAIN;
-      return this;
-    };
-
-
-    // Allows us to play more than one note.
-    function Chord( freqArray, duration ) {
-      Rest.call( this, duration );
-
-      this.oscillators = [];
-      this.gain = audioContext.createGainNode();
-
-      var oscillator;
-      for ( var i = 0, il = freqArray.length; i < il; i++ ) {
-        oscillator = audioContext.createOscillator();
-
-        oscillator.type = 0;
-        oscillator.frequency.value = freqFromString( freqArray[i] );
-
-        this.oscillators.push( oscillator );
+      if ( this.voice ) {
+        this.voice.stop();
       }
-    }
-
-    Chord.prototype = new Rest();
-    Chord.prototype.constructor = Chord;
-
-    Chord.prototype.start = function() {
-      angular.forEach( this.oscillators, function( oscillator ) {
-        oscillator.connect( gain );
-        oscillator.start(0);
-      });
-
-      return Rest.prototype.start.call( this );
-    };
-
-    Chord.prototype.stop = function() {
-      angular.forEach( this.oscillators, function( oscillator ) {
-        oscillator.stop(0);
-        oscillator.disconnect(0);
-      });
 
       return this;
     };
@@ -160,21 +98,16 @@ angular.module( 'toneScratcherApp' )
 
     // Public API.
     return {
-      chord: function( freqArray, duration ) {
-        return new Chord( freqArray, duration );
+      play: function( freq, duration, voice ) {
+        return new Note( freq, duration, voice );
       },
 
-      play: function( freq, duration ) {
-        return new Note( freq, duration );
+      rest: function( duration, voice ) {
+        return new Rest( duration, voice );
       },
 
-      rest: function( duration ) {
-        return new Rest( duration );
-      },
-
-      Chord: Chord,
-      Note:  Note,
-      Rest:  Rest,
+      Note: Note,
+      Rest: Rest,
 
       halfStepsFromA4: halfStepsFromA4,
       freqFromString:  freqFromString,
@@ -190,4 +123,4 @@ angular.module( 'toneScratcherApp' )
         };
       }
     };
-  }]);
+  });
