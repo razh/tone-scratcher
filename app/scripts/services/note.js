@@ -79,7 +79,7 @@ angular.module( 'toneScratcherApp' )
 
     Note.prototype.start = function() {
       if ( this.voice ) {
-        this.voice.setFrequency( this.freq ).start();
+        this.voice.freq( this.freq ).start();
       }
 
       return Rest.prototype.start.call( this );

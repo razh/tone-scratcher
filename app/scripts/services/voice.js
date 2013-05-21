@@ -37,8 +37,13 @@ angular.module( 'toneScratcherApp' )
       return this;
     };
 
-    Voice.prototype.setFrequency = function( freq ) {
+    Voice.prototype.freq = function( freq ) {
       this.oscillator.frequency.value = freq;
+      return this;
+    };
+
+    Voice.prototype.vol = function( percent ) {
+      this.gain = percent * this.MAX_GAIN + ( 1 - percent ) * this.MIN_GAIN;
       return this;
     };
 
