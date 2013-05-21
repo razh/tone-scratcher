@@ -7,30 +7,18 @@ angular.module( 'toneScratcherApp' )
         play = note.play,
         rest = note.rest;
 
-    function Instrument( options ) {
-      // Whether the Instrument will lerp between notes.
-      this.glideTime = options.glideTime || 0;
-
-      this.frequency = options.frequency || 440;
-
-      this.oscillator = audioContext.createOscillator();
-      this.oscillator.type = options.type || 0;
-
-      this.currentFrequency = this.frequency;
-      this.targetFrequency = this.frequency + 100;
+    function Instrument() {
+      this.voices = [];
     }
 
-    Instrument.prototype.play = function() {
-      this.oscillator.start();
+    Instrument.prototype.start = function() {
+      angular.forEach( this.voices, function( voice ) {
+        voice.start();
+      });
     };
 
-    /**
-     * Plays the note (or note chain) at the given startTime.
-     * @param  {[type]} note
-     * @param  {[type]} startTime
-     */
-    Instrument.prototype.addNote = function( note, startTime ) {
-
+    Instrument.prototype.voice = function( options ) {
+      this.voices.push( new Voice( options ) );
     };
 
     // Public API here
