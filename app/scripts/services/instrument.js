@@ -8,21 +8,21 @@ angular.module( 'toneScratcherApp' )
     }
 
     Instrument.prototype.connect = function( node ) {
-      angular.forEach( this.voices, function( voice ) {
+      this.voices.forEach( function( voice ) {
         voice.connect( node );
       });
       return this;
     };
 
     Instrument.prototype.start = function() {
-      angular.forEach( this.voices, function( voice ) {
+      this.voices.forEach( function( voice ) {
         voice.start();
       });
       return this;
     };
 
     Instrument.prototype.stop = function() {
-      angular.forEach( this.voices, function( voice ) {
+      this.voices.forEach( function( voice ) {
         voice.stop();
       });
       return this;
@@ -34,7 +34,7 @@ angular.module( 'toneScratcherApp' )
     };
 
     Instrument.prototype.vol = function( percent ) {
-      angular.forEach( this.voices, function( voice ) {
+      this.voices.forEach( function( voice ) {
         voice.vol( percent );
       });
     };
