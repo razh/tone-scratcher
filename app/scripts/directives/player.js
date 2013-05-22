@@ -35,38 +35,7 @@ angular.module( 'toneScratcherApp' )
         }).voice({
           type: 0,
           maxGain: 0.02
-        }).connect( audioContext.destination ).start()
-        .then( play, 'C4', quarterNote / 3 )
-        .then( play, 'F4', quarterNote / 3 )
-        .then( play, 'Bb4', quarterNote / 3 )
-
-        .then( play, 'C4', quarterNote / 3 )
-        .then( play, 'F4', quarterNote / 3 )
-        .then( play, 'Bb4', quarterNote / 3 )
-
-        .then( play, 'C4', quarterNote / 3 )
-        .then( play, 'F4', quarterNote / 3 )
-        .then( play, 'Bb4', quarterNote / 3 )
-
-        .then( play, 'C4', quarterNote / 3 )
-        .then( play, 'F4', quarterNote / 3 )
-        .then( play, 'Bb4', quarterNote / 3 )
-
-        .then( play, 'C4', quarterNote / 3 )
-        .then( play, 'E4', quarterNote / 3 )
-        .then( play, 'G4', quarterNote / 3 )
-
-        .then( play, 'C4', quarterNote / 3 )
-        .then( play, 'E4', quarterNote / 3 )
-        .then( play, 'G4', quarterNote / 3 )
-
-        .then( play, 'C4', quarterNote / 3 )
-        .then( play, 'E4', quarterNote / 3 )
-        .then( play, 'G4', quarterNote / 3 )
-
-        .then( play, 'C4', quarterNote / 3 )
-        .then( play, 'E4', quarterNote / 3 )
-        .then( play, 'G4', quarterNote / 3 );
+        });
 
         // Reverb.
         var convolver = new tuna.Convolver({
@@ -152,12 +121,48 @@ angular.module( 'toneScratcherApp' )
           .then( play, 'G5', 2 * wholeNote );
         }
 
+        function playInstrument() {
+          instrument.connect( audioContext.destination ).start()
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'F5', quarterNote / 3 )
+          .then( play, 'Ab5', quarterNote / 3 )
+
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'F5', quarterNote / 3 )
+          .then( play, 'Ab5', quarterNote / 3 )
+
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'F5', quarterNote / 3 )
+          .then( play, 'Ab5', quarterNote / 3 )
+
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'F5', quarterNote / 3 )
+          .then( play, 'Ab5', quarterNote / 3 )
+
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'E5', quarterNote / 3 )
+          .then( play, 'G5', quarterNote / 3 )
+
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'E5', quarterNote / 3 )
+          .then( play, 'G5', quarterNote / 3 )
+
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'E5', quarterNote / 3 )
+          .then( play, 'G5', quarterNote / 3 )
+
+          .then( play, 'C5', quarterNote / 3 )
+          .then( play, 'E5', quarterNote / 3 )
+          .then( play, 'G5', quarterNote / 3 );
+        }
+
         function bassLine() {
 
         }
 
         element.bind( 'click', function() {
           melody( sineVoice );
+          playInstrument();
           bassLine();
         });
       }
