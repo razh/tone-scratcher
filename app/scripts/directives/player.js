@@ -1,7 +1,7 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .directive( 'player', [ 'audioContext', 'note', 'voice', function( audioContext, note, Voice ) {
+  .directive( 'player', [ 'audioContext', 'note', 'instrument', 'voice',function( audioContext, note, Instrument, Voice ) {
     return {
       template: '<button>Play</button>',
       restrict: 'E',
@@ -27,6 +27,47 @@ angular.module( 'toneScratcherApp' )
 
         var sineVoice = new Voice();
 
+        var instrument = new Instrument();
+
+        instrument.voice({
+          type: 1,
+          maxGain: 0.01
+        }).voice({
+          type: 0,
+          maxGain: 0.02
+        }).connect( audioContext.destination ).start()
+        .then( play, 'C4', quarterNote / 3 )
+        .then( play, 'F4', quarterNote / 3 )
+        .then( play, 'Bb4', quarterNote / 3 )
+
+        .then( play, 'C4', quarterNote / 3 )
+        .then( play, 'F4', quarterNote / 3 )
+        .then( play, 'Bb4', quarterNote / 3 )
+
+        .then( play, 'C4', quarterNote / 3 )
+        .then( play, 'F4', quarterNote / 3 )
+        .then( play, 'Bb4', quarterNote / 3 )
+
+        .then( play, 'C4', quarterNote / 3 )
+        .then( play, 'F4', quarterNote / 3 )
+        .then( play, 'Bb4', quarterNote / 3 )
+
+        .then( play, 'C4', quarterNote / 3 )
+        .then( play, 'E4', quarterNote / 3 )
+        .then( play, 'G4', quarterNote / 3 )
+
+        .then( play, 'C4', quarterNote / 3 )
+        .then( play, 'E4', quarterNote / 3 )
+        .then( play, 'G4', quarterNote / 3 )
+
+        .then( play, 'C4', quarterNote / 3 )
+        .then( play, 'E4', quarterNote / 3 )
+        .then( play, 'G4', quarterNote / 3 )
+
+        .then( play, 'C4', quarterNote / 3 )
+        .then( play, 'E4', quarterNote / 3 )
+        .then( play, 'G4', quarterNote / 3 );
+
         // Reverb.
         var convolver = new tuna.Convolver({
           highCut: 22050, // 20 to 22050
@@ -41,7 +82,7 @@ angular.module( 'toneScratcherApp' )
         convolver.connect( audioContext.destination );
 
         function melody( voice ) {
-          voice.connect( convolver.input )
+          voice.connect( convolver.input ).start()
           .then( play, 'E3', halfNote )
           .then( play, 'B4', quarterNote )
           .then( play, 'C6', quarterNote )

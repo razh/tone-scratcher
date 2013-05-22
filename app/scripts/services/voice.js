@@ -20,6 +20,8 @@ angular.module( 'toneScratcherApp' )
 
       this.oscillator.connect( this.gain );
       this.oscillator.start(0);
+
+      this.last = null;
     }
 
     Voice.prototype.connect = function( node ) {
@@ -48,11 +50,19 @@ angular.module( 'toneScratcherApp' )
     };
 
     Voice.prototype.then = function() {
-      var args = Array.prototype.slice.call( arguments ),
-          callback = args.splice( 0, 1 )[0];
+      var args = Array.prototype.slice.call( arguments );
 
       args.push( this );
-      return callback.apply( this, args ).start();
+      if ( this.last ) {
+        // If last exists, attach the callback to last (end of linked list).
+        this.last = this.last.then.apply( this.last, args );
+      } else {
+        var callback = args.splice( 0, 1 )[0];
+        // Create new note/rest and start playing it.
+        this.last = callback.apply( this, args ).start();
+      }
+
+      return this.last;
     };
 
     return Voice;
