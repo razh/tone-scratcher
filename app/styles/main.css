@@ -4857,38 +4857,11 @@ player {
   width: 700px;
   height: 200px; }
 
-.note-view {
+.note-marker {
   background-color: black;
   color: white;
   position: absolute;
   height: 200px;
   width: 20px; }
-  .note-view:before {
+  .note-marker:before {
     content: attr(id); }
-
-#E3 {
-  left: 148.88px; }
-
-#B4 {
-  left: 346.34px; }
-
-#C6 {
-  left: 677.9px; }
-
-#B5 {
-  left: 642.68px; }
-
-#D5 {
-  left: 402.38px; }
-
-#A4 {
-  left: 314px; }
-
-#G5 {
-  left: 520.4px; }
-
-#C5 {
-  left: 363.98px; }
-
-#A3 {
-  left: 182px; }

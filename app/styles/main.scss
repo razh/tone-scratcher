@@ -1,11 +1,9 @@
 @import "../components/sass-bootstrap/lib/bootstrap";
 
 $height: 200px;
-$scale-factor: 0.6;
 $margin: 60px;
 
 $note-width: 20px;
-$note-offset: $margin - 0.5 * $note-width;
 
 .container {
   width: auto;
@@ -23,7 +21,7 @@ player {
   height: $height;
 }
 
-.note-view {
+.note-marker {
   background-color: black;
   color: white;
 
@@ -34,41 +32,4 @@ player {
   &:before {
     content: attr(id);
   }
-}
-
-#E3 {
-  left: 164.8px * $scale-factor + $note-offset;
-}
-
-#B4 {
-  left: 493.9px * $scale-factor + $note-offset;
-}
-
-#C6 {
-  left: 1046.5px * $scale-factor + $note-offset;
-}
-
-#B5 {
-  left: 987.8px * $scale-factor + $note-offset;
-}
-
-#D5 {
-  left: 587.3px * $scale-factor + $note-offset;
-}
-
-#A4 {
-  left: 440px * $scale-factor + $note-offset;
-}
-
-#G5 {
-  left: 784px * $scale-factor + $note-offset;
-}
-
-#C5 {
-  left: 523.3px * $scale-factor + $note-offset;
-}
-
-
-#A3 {
-  left: 220px * $scale-factor + $note-offset;
 }

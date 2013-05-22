@@ -1,12 +1,14 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .directive( 'theremin', [ 'audioContext', function( audioContext ) {
+  .directive( 'theremin', [ 'audioContext', 'SCALE', function( audioContext, SCALE ) {
     return {
       template: '<div class="theremin" ng-mousemove=update($event) ng-mouseenter="start()" ng-mouseleave="stop()" ng-transclude></div>',
       restrict: 'E',
       transclude: true,
       link: function postLink( scope, element, attrs ) {
+
+        var invScale = 1 / SCALE;
 
         var gain = audioContext.createGainNode(),
             oscillator = audioContext.createOscillator();
@@ -31,8 +33,6 @@ angular.module( 'toneScratcherApp' )
         oscillator.connect( gain );
         oscillator.start(0);
 
-        var scaleFactor = 1 / 0.6;
-
         scope.frequency = oscillator.frequency;
 
         scope.start = function() {
@@ -44,29 +44,9 @@ angular.module( 'toneScratcherApp' )
         };
 
         scope.update = function( event ) {
-          oscillator.frequency.value = scaleFactor * ( event.pageX || 0 - element[0].offsetLeft || 0 ) - 100;
+          oscillator.frequency.value = invScale * ( event.pageX || 0 - element[0].offsetLeft || 0 ) - 100;
           console.log( oscillator.frequency.value );
         };
       }
     };
-  }])
-  .directive( 'noteView', function() {
-    return {
-      restrict: 'C',
-      link: function postLink( scope, element, attrs ) {
-        var onMouseMove = function( event ) {
-          event.stopPropagation();
-          scope.frequency.value = parseFloat( attrs.freq, 10 );
-          console.log( scope.frequency.value );
-        };
-
-        element.bind( 'mouseenter', function() {
-          element.bind( 'mousemove', onMouseMove );
-        });
-
-        element.bind( 'mouseleave', function() {
-          element.unbind( 'mousemove', onMouseMove );
-        });
-      }
-    };
-  });
+  }]);
