@@ -2,6 +2,10 @@
 
 angular.module( 'toneScratcherApp' )
   .directive( 'theremin', [ 'audioContext', 'consts', function( audioContext, consts ) {
+    var TYPE = consts.type || 0,
+        MAX_GAIN = consts.maxGain || 0.025,
+        MIN_GAIN = consts.minGain || 0;
+
     return {
       template: '<div class="theremin" ng-mousemove=update($event) ng-mouseenter="start()" ng-mouseleave="stop()" ng-transclude></div>',
       restrict: 'E',
@@ -28,18 +32,18 @@ angular.module( 'toneScratcherApp' )
         gain.connect( convolver.input );
         gain.gain.value = 0;
 
-        oscillator.type = 0;
+        oscillator.type = parseInt( attrs.type, 10 ) || TYPE;
         oscillator.connect( gain );
         oscillator.start(0);
 
         scope.frequency = oscillator.frequency;
 
         scope.start = function() {
-          gain.gain.value = 0.025;
+          gain.gain.value = parseFloat( attrs.maxGain ) || MAX_GAIN;
         };
 
         scope.stop = function() {
-          gain.gain.value = 0;
+          gain.gain.value = parseFloat( attrs.minGain ) || MIN_GAIN;
         };
 
         scope.update = function( event ) {

@@ -1,11 +1,11 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .factory( 'voice', [ 'audioContext', function( audioContext ) {
+  .factory( 'voice', [ 'audioContext', 'consts', function( audioContext, consts ) {
 
     function Voice( options ) {
-      this.MAX_GAIN = 0.05;
-      this.MIN_GAIN = 0;
+      this.MAX_GAIN = consts.maxGain || 0.05;
+      this.MIN_GAIN = consts.minGain || 0;
 
       this.gain = audioContext.createGainNode();
       this.oscillator = audioContext.createOscillator();
@@ -13,7 +13,7 @@ angular.module( 'toneScratcherApp' )
       if ( options ) {
         this.MAX_GAIN = options.maxGain || this.MAX_GAIN;
         this.MIN_GAIN = options.minGain || this.MIN_GAIN;
-        this.oscillator.type = options.type || 0;
+        this.oscillator.type = options.type || consts.type || 0;
       }
 
       this.gain.gain.value = this.MIN_GAIN;
