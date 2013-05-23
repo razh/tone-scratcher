@@ -1,14 +1,13 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .directive( 'theremin', [ 'audioContext', 'SCALE', function( audioContext, SCALE ) {
+  .directive( 'theremin', [ 'audioContext', 'consts', function( audioContext, consts ) {
     return {
       template: '<div class="theremin" ng-mousemove=update($event) ng-mouseenter="start()" ng-mouseleave="stop()" ng-transclude></div>',
       restrict: 'E',
       transclude: true,
       link: function postLink( scope, element, attrs ) {
-
-        var invScale = 1 / SCALE;
+        var invScale = 1 / consts.scale;
 
         var gain = audioContext.createGainNode(),
             oscillator = audioContext.createOscillator();

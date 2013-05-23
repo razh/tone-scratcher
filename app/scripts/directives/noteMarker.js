@@ -1,12 +1,12 @@
 'use strict';
 
 angular.module( 'toneScratcherApp' )
-  .directive( 'noteMarker', [ 'SCALE', function( SCALE ) {
+  .directive( 'noteMarker', [ 'consts', function( consts ) {
     return {
       restrict: 'C',
       link: function postLink( scope, element, attrs ) {
         // Move marker into position.
-        element.css( 'left', SCALE * parseFloat( attrs.freq ) + element[0].offsetLeft + 'px' );
+        element.css( 'left', consts.scale * parseFloat( attrs.freq ) + element[0].offsetLeft + 'px' );
 
         var onMouseMove = function( event ) {
           event.stopPropagation();
