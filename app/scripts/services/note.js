@@ -60,7 +60,7 @@ angular.module( 'toneScratcherApp' )
 
     Rest.prototype.then = function() {
       var args = Array.prototype.slice.call( arguments ),
-          callback = args.splice( 0, 1 )[0];
+          callback = args.shift();
 
       args.push( this.voice );
       this.next = callback.apply( this, args );

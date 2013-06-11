@@ -57,7 +57,7 @@ angular.module( 'toneScratcherApp' )
         // If last exists, attach the callback to last (end of linked list).
         this.last = this.last.then.apply( this.last, args );
       } else {
-        var callback = args.splice( 0, 1 )[0];
+        var callback = args.shift();
         // Create new note/rest and start playing it.
         this.last = callback.apply( this, args ).start();
       }
