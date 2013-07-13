@@ -33,3 +33,9 @@ player {
     content: attr(id);
   }
 }
+
+view {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}

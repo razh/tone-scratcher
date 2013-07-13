@@ -24,6 +24,9 @@ angular.module( 'toneScratcherApp' )
         note--;
       }
 
+      // Limit note to [0, 11].
+      note = Math.min( Math.max( note, 0 ), 11 );
+
       // Subtract 9 to shift center to A4.
       return note + ( octave - 4 ) * 12 - 9;
     }
