@@ -24,10 +24,10 @@ angular.module( 'toneScratcherApp' )
             currTime = prevTime;
 
         // Number of pixels the path shifts down in a second.
-        var velocityY = 100,
+        var velocityX = 100,
             // Number of pixels past the bottom before we delete.
             // Here it is set to the number of pixels traveled in half a second.
-            paddingY = velocityY;
+            paddingX = velocityX;
 
         // Current mouse position.
         var mouse = null;
@@ -61,18 +61,18 @@ angular.module( 'toneScratcherApp' )
             }]);
           }
 
-          var dy = velocityY * dt;
+          var dx = velocityX * dt;
           for ( var i = lines.length - 1; i >= 0; i-- ) {
-            lines[i][0].y += dy;
+            lines[i][0].x -= dx;
 
             // Only update the second coordinate if not the last point.
             // Thus, the last point is always at the last mouse position.
             if ( i < lines.length - 1 ) {
-              lines[i][1].y += dy;
+              lines[i][1].x -= dx;
             }
 
-            if ( lines[i][0].y >= canvas.height + paddingY &&
-                 lines[i][1].y >= canvas.height + paddingY ) {
+            if ( lines[i][0].x < -paddingX &&
+                 lines[i][1].x < -paddingX ) {
               lines.splice( i, 1 );
             }
           }
