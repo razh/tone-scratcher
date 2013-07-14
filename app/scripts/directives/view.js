@@ -18,10 +18,12 @@ angular.module( 'toneScratcherApp' )
         ctx.fillStyle = 'red';
         ctx.fillRect( 0, 0, canvas.width, canvas.height );
 
-        var lines = [];
+        var path  = [],
+            paths = [ path ];
 
         var prevTime = Date.now(),
-            currTime = prevTime;
+            currTime = prevTime,
+            running  = true;
 
         // Number of pixels the path shifts down in a second.
         var velocityX = 100,
@@ -30,9 +32,14 @@ angular.module( 'toneScratcherApp' )
             paddingX = velocityX;
 
         // Current mouse position.
-        var mouse = null;
+        var mouse = null,
+            mouseDown = false;
 
         function tick() {
+          if ( !running ) {
+            return;
+          }
+
           update();
           draw();
           requestAnimationFrame( tick );
@@ -51,10 +58,11 @@ angular.module( 'toneScratcherApp' )
           dt *= 1e-3;
 
           // Create new line and add it to the list.
-          if ( mouse ) {
-            lines.push([{
-              x: lines.length > 0 ? lines[ lines.length - 1 ][1].x : mouse.x,
-              y: lines.length > 0 ? lines[ lines.length - 1 ][1].y : mouse.y
+          if ( mouse && mouseDown ) {
+            var lastIndex = path.length - 1;
+            path.push([{
+              x: lastIndex >= 0 ? path[ lastIndex ][1].x : mouse.x,
+              y: lastIndex >= 0 ? path[ lastIndex ][1].y : mouse.y
             }, {
               x: mouse.x,
               y: mouse.y
@@ -62,18 +70,20 @@ angular.module( 'toneScratcherApp' )
           }
 
           var dx = velocityX * dt;
-          for ( var i = lines.length - 1; i >= 0; i-- ) {
-            lines[i][0].x -= dx;
+          var i, j;
+          for ( i = paths.length - 1; i >= 0; i-- ) {
+            for ( j = paths[i].length - 1; j >= 0; j-- ) {
+              paths[i][j][0].x -= dx;
+              paths[i][j][1].x -= dx;
 
-            // Only update the second coordinate if not the last point.
-            // Thus, the last point is always at the last mouse position.
-            if ( i < lines.length - 1 ) {
-              lines[i][1].x -= dx;
+              if ( paths[i][j][0].x < -paddingX &&
+                   paths[i][j][1].x < -paddingX ) {
+                paths[i].splice( j, 1 );
+              }
             }
 
-            if ( lines[i][0].x < -paddingX &&
-                 lines[i][1].x < -paddingX ) {
-              lines.splice( i, 1 );
+            if ( paths[i].length === 0 ) {
+              paths.splice( i, 1 );
             }
           }
         }
@@ -86,29 +96,46 @@ angular.module( 'toneScratcherApp' )
 
           ctx.beginPath();
 
-          var length = lines.length;
-          if ( lines[ length - 1 ] ) {
-            ctx.moveTo(
-              lines[ length - 1 ][0].x,
-              lines[ length - 1 ][0].y
-            );
+          var starts = [];
+
+          var i, j, il, jl;
+          for ( i = 0, il = paths.length; i < il; i++ ) {
+            if ( paths[i].length ) {
+              starts.push( paths[i][0][0] );
+              ctx.moveTo( paths[i][0][0].x, paths[i][0][0].y );
+            }
+
+            for ( j = 0, jl = paths[i].length; j < jl; j++ ) {
+              ctx.lineTo( paths[i][j][1].x, paths[i][j][1].y );
+            }
           }
 
-          for ( var i = length - 1; i >= 0; i-- ) {
-            ctx.lineTo( lines[i][1].x, lines[i][1].y );
-          }
+          ctx.shadowBlur = Math.random() * 15 + 15;
+          ctx.shadowColor = 'rgba( 0, 255, 0, 1 )';
 
-          ctx.lineWidth = 9;
+          ctx.lineWidth = Math.random() * 4 + 2;
           ctx.strokeStyle = 'rgba( 255, 255, 255, 0.5 )';
-          ctx.stroke();
-
-          ctx.lineWidth = 6;
-          ctx.strokeStyle = 'red';
           ctx.stroke();
 
           ctx.lineWidth = 3;
           ctx.strokeStyle = 'white';
           ctx.stroke();
+
+          if ( mouse ) {
+            ctx.beginPath();
+            ctx.arc( mouse.x, mouse.y, Math.random() * 6 + 8, 0, 2 * Math.PI );
+            ctx.fillStyle = 'rgba( 255, 255, 255, 0.25 )';
+            ctx.fill();
+          }
+
+          ctx.shadowBlur = 0;
+
+          for ( i = 0; i < starts.length; i++ ) {
+            ctx.beginPath();
+            ctx.arc( starts[i].x, starts[i].y, 5, 0, 2 * Math.PI );
+            ctx.fillStyle = 'red';
+            ctx.fill();
+          }
         }
 
         element.bind( 'mousemove', function( event ) {
@@ -116,6 +143,23 @@ angular.module( 'toneScratcherApp' )
             x: event.x,
             y: event.y
           };
+        });
+
+        element.bind( 'mousedown', function() {
+          mouseDown = true;
+          path = [];
+          paths.push( path );
+        });
+
+        element.bind( 'mouseup', function() {
+          mouseDown = false;
+        });
+
+        window.addEventListener( 'keydown', function( event ) {
+          // ESC.
+          if ( event.which === 27 ) {
+            running = false;
+          }
         });
 
         requestAnimationFrame( tick );
