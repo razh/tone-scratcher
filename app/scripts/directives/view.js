@@ -26,7 +26,7 @@ angular.module( 'toneScratcherApp' )
         // Number of pixels the path shifts down in a second.
         var velocityY = 100,
             // Number of pixels past the bottom before we delete.
-            // Here it is set to the number of pixels traveled in a second.
+            // Here it is set to the number of pixels traveled in half a second.
             paddingY = velocityY;
 
         // Current mouse position.
@@ -52,21 +52,9 @@ angular.module( 'toneScratcherApp' )
 
           // Create new line and add it to the list.
           if ( mouse ) {
-            // Start off with line at mouse.
-            if ( lines.length === 0 ) {
-              lines.push([{
-                x: mouse.x,
-                y: mouse.y
-              }, {
-                x: mouse.x,
-                y: mouse.y
-              }]);
-            }
-
-            // Start line with last endpoint.
             lines.push([{
-              x: lines[ lines.length - 1 ][1].x,
-              y: lines[ lines.length - 1 ][1].y
+              x: lines.length > 0 ? lines[ lines.length - 1 ][1].x : mouse.x,
+              y: lines.length > 0 ? lines[ lines.length - 1 ][1].y : mouse.y
             }, {
               x: mouse.x,
               y: mouse.y
@@ -106,54 +94,20 @@ angular.module( 'toneScratcherApp' )
             );
           }
 
-          var x0, y0,
-              x1, y1,
-              x2, y2,
-              x3, y3;
-
-          var p0x, p0y,
-              p1x, p1y,
-              p2x, p2y,
-              p3x, p3y;
-
-          // Only loop if three lines.
-          for ( var i = length - 1; i >= 2; i -= 3 ) {
-            x0 = lines[i][0].x;
-            y0 = lines[i][0].y;
-
-            x1 = lines[i][1].x;
-            y1 = lines[i][1].y;
-
-            x2 = lines[ i - 1 ][1].x;
-            y2 = lines[ i - 1 ][1].y;
-
-            x3 = lines[ i - 2 ][1].x;
-            y3 = lines[ i - 2 ][1].y;
-
-            // Calculate control points.
-            p0x = x0;
-            p0y = y0;
-
-            p1x = ( -5 * x0 + 18 * x1 -  9 * x2 + 2 * x3 ) / 6;
-            p1y = ( -5 * y0 + 18 * y1 -  9 * y2 + 2 * y3 ) / 6;
-
-            p2x = (  2 * x0 -  9 * x1 + 18 * x2 - 5 * x3 ) / 6;
-            p2y = (  2 * y0 -  9 * y1 + 18 * y2 - 5 * y3 ) / 6;
-
-            p3x = x3;
-            p3y = y3;
-
-            ctx.bezierCurveTo( p1x, p1y, p2x, p2y, p3x, p3y );
-
-            // ctx.lineTo( lines[i][1].x, lines[i][1].y );
+          for ( var i = length - 1; i >= 0; i-- ) {
+            ctx.lineTo( lines[i][1].x, lines[i][1].y );
           }
 
-          ctx.lineWidth = 5;
-          ctx.strokeStyle = 'orange';
+          ctx.lineWidth = 9;
+          ctx.strokeStyle = 'rgba( 255, 255, 255, 0.5 )';
+          ctx.stroke();
+
+          ctx.lineWidth = 6;
+          ctx.strokeStyle = 'red';
           ctx.stroke();
 
           ctx.lineWidth = 3;
-          ctx.strokeStyle = 'red';
+          ctx.strokeStyle = 'white';
           ctx.stroke();
         }
 
