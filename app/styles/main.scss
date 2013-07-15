@@ -40,3 +40,13 @@ view {
   height: 100%;
   background: #111;
 }
+
+.scrubber {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+
+  input {
+    width: 100%;
+  }
+}

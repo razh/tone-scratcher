@@ -4879,3 +4879,10 @@ view {
   width: 100%;
   height: 100%;
   background: #111; }
+
+.scrubber {
+  position: absolute;
+  bottom: 10px;
+  width: 100%; }
+  .scrubber input {
+    width: 100%; }

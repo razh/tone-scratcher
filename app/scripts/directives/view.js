@@ -56,8 +56,9 @@ angular.module( 'toneScratcherApp' )
             running  = true;
 
         // Number of pixels the path shifts down in a second.
-        var velocityX = 100,
-            position = 0;
+        var velocityX = 100;
+
+        var position;
 
         // Current mouse position.
         var mouse = null,
@@ -85,6 +86,8 @@ angular.module( 'toneScratcherApp' )
           // Convert from milliseconds to seconds.
           dt *= 1e-3;
 
+          position = parseFloat( scope.config.position );
+
           // Create new line and add it to the list.
           if ( mouse && mouseDown ) {
             var lastIndex = path.length - 1;
@@ -97,7 +100,14 @@ angular.module( 'toneScratcherApp' )
             }]);
           }
 
+          if ( !scope.config.playing ) {
+            return;
+          }
+
           position += velocityX * dt;
+          scope.config.position = position;
+          scope.config.max = Math.max( parseFloat( scope.config.max ), position );
+          scope.$apply();
         }
 
         function draw() {
