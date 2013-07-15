@@ -1,5 +1,35 @@
 'use strict';
 
+// Given two line segments: (x0, y0) -> (x1, y1)  and (x2, y2) -> (x3, y3).
+// Return the coordinate of the intersection, or null if no intersection.
+function intersectSegments( x0, y0, x1, y1, x2, y2, x3, y3 ) {
+  // Calculate the determinant: dx0 * dy1  - dx1 * dy0.
+  var det = ( x1 - x0 ) * ( y3 - y2 ) - ( x3 - x2 ) * ( y1 - y0 );
+  if ( det === 0 ) {
+    return null;
+  }
+
+  var detInverse = 1 / det;
+
+  // Parameters.
+  var s = ( ( x3 - x2 ) * ( y0 - y2 ) - ( y3 - y2 ) * ( x0 - x2 ) ) * detInverse,
+      t = ( ( x1 - x0 ) * ( y0 - y2 ) - ( y1 - y0 ) * ( x0 - x2 ) ) * detInverse;
+
+  // If the parameters are exceed the line segment bounds.
+  if ( 0 > s || s > 1 ) {
+    return null;
+  }
+
+  if ( 0 > t || t > 1 ) {
+    return null;
+  }
+
+  return {
+    x: x0 + ( x1 - x0 ) * s,
+    y: y0 + ( y1 - y0 ) * s,
+  };
+}
+
 /**
  * Main view for displaying
  */
@@ -30,6 +60,8 @@ angular.module( 'toneScratcherApp' )
             // Number of pixels past the bottom before we delete.
             // Here it is set to the number of pixels traveled in half a second.
             paddingX = velocityX;
+
+        var position = 0;
 
         // Current mouse position.
         var mouse = null,
@@ -93,17 +125,29 @@ angular.module( 'toneScratcherApp' )
 
           ctx.beginPath();
 
-          var starts = [];
+          // POnts of intersection.
+          var points = [],
+              intersection;
 
           var i, j, il, jl;
           for ( i = 0, il = paths.length; i < il; i++ ) {
             if ( paths[i].length ) {
-              starts.push( paths[i][0][0] );
               ctx.moveTo( paths[i][0][0].x, paths[i][0][0].y );
             }
 
             for ( j = 0, jl = paths[i].length; j < jl; j++ ) {
               ctx.lineTo( paths[i][j][1].x, paths[i][j][1].y );
+
+              intersection = intersectSegments(
+                paths[i][j][0].x, paths[i][j][0].y,
+                paths[i][j][1].x, paths[i][j][1].y,
+                0, 0,
+                0, canvas.height
+              );
+
+              if ( intersection ) {
+                points.push( intersection );
+              }
             }
           }
 
@@ -126,6 +170,13 @@ angular.module( 'toneScratcherApp' )
           }
 
           ctx.shadowBlur = 0;
+
+          for ( i = points.length - 1; i >= 0; i-- ) {
+            ctx.beginPath();
+            ctx.arc( points[i].x, points[i].y, 20, 0, 2 * Math.PI );
+            ctx.fillStyle = 'red';
+            ctx.fill();
+          }
         }
 
         element.bind( 'mousemove', function( event ) {
@@ -156,34 +207,3 @@ angular.module( 'toneScratcherApp' )
       }
     };
   });
-
-// Given two line segments: (x0, y0) -> (x1, y1)  and (x2, y2) -> (x3, y3).
-// Return the coordinate of the intersection.
-function intersectSegments( x0, y0, x1, y1, x2, y2, x3, y3 ) {
-  /*
-    The parametric equation of a line segment given by (x, y) and (i, j) is:
-
-      x(t) = tx + (1 - t)i;
-      y(t) = ty + (1 - t)j;
-
-    Thus, for the two given line segments, the intersection point can be found
-    by setting the the two equations equal to each other:
-
-      t * x0 + (1 - t) = ua + (1 - u)c
-      t * y0 + (1 - t)j = ub + (1 - u)d
-
-    This becomes:
-
-      tx + i - ti = ua + c - uc
-      ty + j - tj = ub + d - ud
-
-      tx - ti = ua - uc + c - i
-      t = (u(a - c) + c - i) / (x - i).
-
-
-   */
-  // var dot = ( y3 - y2 ) * ( )
-  // if ( det === 0 ) {
-  //   return null;
-  // }
-}
