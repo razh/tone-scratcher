@@ -136,14 +136,18 @@ angular.module( 'toneScratcherApp' )
                 continue;
               }
 
+              if ( x0 > position + canvas.width && x1 > position + canvas.width ) {
+                continue;
+              }
+
               ctx.moveTo( x0, y0 );
               ctx.lineTo( x1, y1 );
 
               intersection = intersectSegments(
                 x0, y0,
                 x1, y1,
-                0, 0,
-                0, canvas.height
+                position, 0,
+                position, canvas.height
               );
 
               if ( intersection ) {
@@ -163,21 +167,20 @@ angular.module( 'toneScratcherApp' )
           ctx.strokeStyle = 'white';
           ctx.stroke();
 
-          ctx.restore();
-
-          if ( mouse ) {
-            ctx.beginPath();
-            ctx.arc( mouse.x, mouse.y, Math.random() * 6 + 8, 0, 2 * Math.PI );
-            ctx.fillStyle = 'rgba( 255, 255, 255, 0.25 )';
-            ctx.fill();
-          }
-
           ctx.shadowBlur = 0;
 
           for ( i = points.length - 1; i >= 0; i-- ) {
             ctx.beginPath();
             ctx.arc( points[i].x, points[i].y, 20, 0, 2 * Math.PI );
             ctx.fillStyle = 'red';
+            ctx.fill();
+          }
+          ctx.restore();
+
+          if ( mouse ) {
+            ctx.beginPath();
+            ctx.arc( mouse.x, mouse.y, Math.random() * 6 + 8, 0, 2 * Math.PI );
+            ctx.fillStyle = 'rgba( 255, 255, 255, 0.25 )';
             ctx.fill();
           }
         }
