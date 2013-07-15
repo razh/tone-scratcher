@@ -91,9 +91,6 @@ angular.module( 'toneScratcherApp' )
         function draw() {
           ctx.clearRect( 0, 0, canvas.width, canvas.height );
 
-          ctx.fillStyle = 'rgba( 0, 0, 90, 0.25 )';
-          ctx.fillRect( 0, 0, canvas.width, canvas.height );
-
           ctx.beginPath();
 
           var starts = [];
@@ -129,13 +126,6 @@ angular.module( 'toneScratcherApp' )
           }
 
           ctx.shadowBlur = 0;
-
-          for ( i = 0; i < starts.length; i++ ) {
-            ctx.beginPath();
-            ctx.arc( starts[i].x, starts[i].y, 5, 0, 2 * Math.PI );
-            ctx.fillStyle = 'red';
-            ctx.fill();
-          }
         }
 
         element.bind( 'mousemove', function( event ) {
@@ -166,3 +156,34 @@ angular.module( 'toneScratcherApp' )
       }
     };
   });
+
+// Given two line segments: (x0, y0) -> (x1, y1)  and (x2, y2) -> (x3, y3).
+// Return the coordinate of the intersection.
+function intersectSegments( x0, y0, x1, y1, x2, y2, x3, y3 ) {
+  /*
+    The parametric equation of a line segment given by (x, y) and (i, j) is:
+
+      x(t) = tx + (1 - t)i;
+      y(t) = ty + (1 - t)j;
+
+    Thus, for the two given line segments, the intersection point can be found
+    by setting the the two equations equal to each other:
+
+      t * x0 + (1 - t) = ua + (1 - u)c
+      t * y0 + (1 - t)j = ub + (1 - u)d
+
+    This becomes:
+
+      tx + i - ti = ua + c - uc
+      ty + j - tj = ub + d - ud
+
+      tx - ti = ua - uc + c - i
+      t = (u(a - c) + c - i) / (x - i).
+
+
+   */
+  // var dot = ( y3 - y2 ) * ( )
+  // if ( det === 0 ) {
+  //   return null;
+  // }
+}
