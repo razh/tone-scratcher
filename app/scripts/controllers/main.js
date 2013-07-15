@@ -5,7 +5,9 @@ angular.module( 'toneScratcherApp' )
     $scope.config = {
       position: 0,
       max: 0,
-      playing: true
+      playing: true,
+      running: true,
+      focused: true
     };
 
     $scope.pause = function() {
@@ -15,4 +17,19 @@ angular.module( 'toneScratcherApp' )
     $scope.play = function() {
       $scope.config.playing = true;
     };
+
+    window.addEventListener( 'keydown', function( event ) {
+      // ESC.
+      if ( event.which === 27 ) {
+        $scope.config.running = false;
+      }
+    });
+
+    window.addEventListener( 'focus', function() {
+      $scope.config.focused = true;
+    });
+
+    window.addEventListener( 'blur', function() {
+      $scope.config.focused = false;
+    });
   }]);

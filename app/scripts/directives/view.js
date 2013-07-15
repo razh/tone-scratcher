@@ -52,8 +52,7 @@ angular.module( 'toneScratcherApp' )
             paths = [ path ];
 
         var prevTime = Date.now(),
-            currTime = prevTime,
-            running  = true;
+            currTime = prevTime;
 
         // Number of pixels the path shifts down in a second.
         var velocityX = 100;
@@ -65,7 +64,7 @@ angular.module( 'toneScratcherApp' )
             mouseDown = false;
 
         function tick() {
-          if ( !running ) {
+          if ( !scope.config.running ) {
             return;
           }
 
@@ -100,7 +99,7 @@ angular.module( 'toneScratcherApp' )
             }]);
           }
 
-          if ( !scope.config.playing ) {
+          if ( !scope.config.focused || !scope.config.playing ) {
             return;
           }
 
@@ -175,6 +174,7 @@ angular.module( 'toneScratcherApp' )
             ctx.fillStyle = 'red';
             ctx.fill();
           }
+
           ctx.restore();
 
           if ( mouse ) {
@@ -200,13 +200,6 @@ angular.module( 'toneScratcherApp' )
 
         element.bind( 'mouseup', function() {
           mouseDown = false;
-        });
-
-        window.addEventListener( 'keydown', function( event ) {
-          // ESC.
-          if ( event.which === 27 ) {
-            running = false;
-          }
         });
 
         requestAnimationFrame( tick );

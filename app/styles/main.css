@@ -4886,3 +4886,14 @@ view {
   width: 100%; }
   .scrubber input {
     width: 100%; }
+
+input[type=range] {
+  -webkit-appearance: none;
+  background-color: #ccc;
+  outline: none; }
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background-color: #555; }
