@@ -57,11 +57,7 @@ angular.module( 'toneScratcherApp' )
 
         // Number of pixels the path shifts down in a second.
         var velocityX = 100,
-            // Number of pixels past the bottom before we delete.
-            // Here it is set to the number of pixels traveled in half a second.
-            paddingX = velocityX;
-
-        var position = 0;
+            position = 0;
 
         // Current mouse position.
         var mouse = null,
@@ -93,54 +89,49 @@ angular.module( 'toneScratcherApp' )
           if ( mouse && mouseDown ) {
             var lastIndex = path.length - 1;
             path.push([{
-              x: lastIndex >= 0 ? path[ lastIndex ][1].x : mouse.x,
+              x: lastIndex >= 0 ? path[ lastIndex ][1].x : mouse.x + position,
               y: lastIndex >= 0 ? path[ lastIndex ][1].y : mouse.y
             }, {
-              x: mouse.x,
+              x: mouse.x + position,
               y: mouse.y
             }]);
           }
 
-          var dx = velocityX * dt;
-          var i, j;
-          for ( i = paths.length - 1; i >= 0; i-- ) {
-            for ( j = paths[i].length - 1; j >= 0; j-- ) {
-              paths[i][j][0].x -= dx;
-              paths[i][j][1].x -= dx;
-
-              if ( paths[i][j][0].x < -paddingX &&
-                   paths[i][j][1].x < -paddingX ) {
-                paths[i].splice( j, 1 );
-              }
-            }
-
-            if ( paths[i].length === 0 ) {
-              paths.splice( i, 1 );
-            }
-          }
+          position += velocityX * dt;
         }
 
         function draw() {
           ctx.clearRect( 0, 0, canvas.width, canvas.height );
 
+          ctx.save();
+          ctx.translate( -position, 0 );
+
           ctx.beginPath();
 
-          // POnts of intersection.
+          // Points of intersection.
           var points = [],
               intersection;
 
           var i, j, il, jl;
+          var x0, y0, x1, y1;
           for ( i = 0, il = paths.length; i < il; i++ ) {
-            if ( paths[i].length ) {
-              ctx.moveTo( paths[i][0][0].x, paths[i][0][0].y );
-            }
-
             for ( j = 0, jl = paths[i].length; j < jl; j++ ) {
-              ctx.lineTo( paths[i][j][1].x, paths[i][j][1].y );
+              x0 = paths[i][j][0].x;
+              y0 = paths[i][j][0].y;
+              x1 = paths[i][j][1].x;
+              y1 = paths[i][j][1].y;
+
+              // Skip drawing if we can't see it.
+              if ( x0 < position && x1 < position ) {
+                continue;
+              }
+
+              ctx.moveTo( x0, y0 );
+              ctx.lineTo( x1, y1 );
 
               intersection = intersectSegments(
-                paths[i][j][0].x, paths[i][j][0].y,
-                paths[i][j][1].x, paths[i][j][1].y,
+                x0, y0,
+                x1, y1,
                 0, 0,
                 0, canvas.height
               );
@@ -161,6 +152,8 @@ angular.module( 'toneScratcherApp' )
           ctx.lineWidth = 3;
           ctx.strokeStyle = 'white';
           ctx.stroke();
+
+          ctx.restore();
 
           if ( mouse ) {
             ctx.beginPath();
