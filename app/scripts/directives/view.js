@@ -45,9 +45,58 @@ angular.module( 'toneScratcherApp' )
         canvas.width = element.prop( 'offsetWidth' );
         canvas.height = element.prop( 'offsetHeight' );
 
+        context.font = '14pt Helvetica';
+        context.textBaseline = 'top';
+
+        // Generate Audiolet voices.
+        var audiolet = new Audiolet( 44100, 2 );
+
         var noteHeight = 20,
             noteCount = Math.floor( canvas.height / noteHeight ),
+            prevPlaying = [],
             playing = [];
+
+        for ( var i = 0; i < noteCount; i++ ) {
+          prevPlaying[i] = false;
+          playing[i] = false;
+        }
+
+        var attack = 0.01,
+            release = 0.5;
+
+        function MajorPentatonicScale() {
+          Scale.call( this, [ 0, 2, 4, 7, 9 ] );
+        }
+
+        extend( MajorPentatonicScale, Scale );
+
+        var scale = new MajorPentatonicScale();
+
+        // Some of this is taken from Hakim El Hattab's Radar:
+        // https://github.com/hakimel/Radar
+        // Which appears to be similar to Audiolet's chords example project.
+        function Voice( frequency ) {
+          AudioletGroup.call( this, audiolet, 0, 1 );
+
+          this.sine = new Sine( audiolet, frequency );
+
+          this.gain = new Gain( audiolet );
+          this.env = new PercussiveEnvelope( audiolet, 1, attack, release,
+            // On envelope end, remove this.
+            function() {
+              this.audiolet.scheduler.addRelative( 0, this.remove.bind( this ) );
+            }.bind( this ) );
+
+          this.envMulAdd = new MulAdd( audiolet, 0.3, 0 );
+
+          this.sine.connect( this.gain );
+          this.gain.connect( this.outputs[0] );
+
+          this.env.connect( this.envMulAdd );
+          this.envMulAdd.connect( this.gain, 0, 1 );
+        }
+
+        extend( Voice, AudioletGroup );
 
         var path  = [],
             paths = [ path ];
@@ -59,6 +108,9 @@ angular.module( 'toneScratcherApp' )
         var velocityX = 100;
 
         var position;
+
+        // Points of intersection.
+        var points = [];
 
         // Current mouse position.
         var mouse = null,
@@ -119,13 +171,12 @@ angular.module( 'toneScratcherApp' )
             }
 
             ctx.fillRect( 0, noteHeight * i, canvas.width, noteHeight );
-          }
 
-          playing = [];
+            ctx.fillStyle = 'white';
+            ctx.fillText( i, 20, noteHeight * i );
+          }
         }
 
-        // Points of intersection.
-        var points = [];
         function drawPaths( ctx ) {
           ctx.save();
           ctx.translate( -position, 0 );
@@ -133,8 +184,15 @@ angular.module( 'toneScratcherApp' )
           // Draw paths.
           ctx.beginPath();
 
+          // Save old state.
+          var i;
+          for ( i = 0; i < noteCount; i++ ) {
+            prevPlaying[i] = playing[i];
+            playing[i] = false;
+          }
+
           var intersection;
-          var i, j, il, jl;
+          var il, j, jl;
           var x0, y0, x1, y1;
           for ( i = 0, il = paths.length; i < il; i++ ) {
             for ( j = 0, jl = paths[i].length; j < jl; j++ ) {
@@ -159,11 +217,23 @@ angular.module( 'toneScratcherApp' )
                 x0, y0,
                 x1, y1,
                 position, 0,
-                position, canvas.height
+                position, noteCount * noteHeight
               );
 
               if ( intersection ) {
-                playing[ Math.floor( intersection.y / noteHeight ) ] = true;
+                var noteIndex = Math.floor( intersection.y / noteHeight );
+                if ( 0 > noteIndex || noteIndex >= noteCount ) {
+                  continue;
+                }
+
+                playing[ noteIndex ] = true;
+                if ( !prevPlaying[ noteIndex ] ) {
+                  var note = noteCount - noteIndex;
+                  var freq = scale.getFrequency( note % 5, 110, Math.floor( note / 5 ) );
+                  var voice = new Voice( freq );
+                  voice.connect( audiolet.output );
+                }
+
                 points.push( intersection );
               }
             }
@@ -220,22 +290,41 @@ angular.module( 'toneScratcherApp' )
           drawMouse( ctx );
         }
 
-        element.bind( 'mousemove', function( event ) {
-          mouse = {
-            x: event.x,
-            y: event.y
-          };
+        element.bind( 'mousemove touchmove', function( event ) {
+          event.preventDefault();
+          mouse = eventPosition( event );
         });
 
-        element.bind( 'mousedown', function() {
+        element.bind( 'mousedown touchstart', function( event ) {
+          event.preventDefault();
+
           mouseDown = true;
+          mouse = eventPosition( event );
+
           path = [];
           paths.push( path );
         });
 
-        element.bind( 'mouseup', function() {
+        element.bind( 'mouseup touchend', function() {
           mouseDown = false;
         });
+
+        // Calculate position from Mouse or TouchEvent.
+        function eventPosition( event ) {
+          if ( event.targetTouches ) {
+            return {
+              x: event.targetTouches[0].pageX,
+              y: event.targetTouches[0].pageY
+            };
+          } else {
+            return {
+              x: event.x,
+              y: event.y
+            };
+          }
+
+          return null;
+        }
 
         requestAnimationFrame( tick );
       }
