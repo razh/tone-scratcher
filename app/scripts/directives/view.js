@@ -39,14 +39,15 @@ angular.module( 'toneScratcherApp' )
       template: '<canvas></canvas>',
       restrict: 'E',
       link: function postLink( scope, element, attrs ) {
-        var canvas = element.find( 'canvas' )[0],
-            ctx    = canvas.getContext( '2d' );
+        var canvas  = element.find( 'canvas' )[0],
+            context = canvas.getContext( '2d' );
 
         canvas.width = element.prop( 'offsetWidth' );
         canvas.height = element.prop( 'offsetHeight' );
 
-        ctx.fillStyle = 'red';
-        ctx.fillRect( 0, 0, canvas.width, canvas.height );
+        var noteHeight = 20,
+            noteCount = Math.floor( canvas.height / noteHeight ),
+            playing = [];
 
         var path  = [],
             paths = [ path ];
@@ -69,7 +70,7 @@ angular.module( 'toneScratcherApp' )
           }
 
           update();
-          draw();
+          draw( context );
           requestAnimationFrame( tick );
         }
 
@@ -109,18 +110,30 @@ angular.module( 'toneScratcherApp' )
           scope.$apply();
         }
 
-        function draw() {
-          ctx.clearRect( 0, 0, canvas.width, canvas.height );
+        function drawKeys( ctx ) {
+          for ( var i = 0; i < noteCount; i++ ) {
+            if ( playing[i] ) {
+              ctx.fillStyle = 'green';
+            } else {
+              ctx.fillStyle = 'rgba(100, 100, 100, 0.5)';
+            }
 
+            ctx.fillRect( 0, noteHeight * i, canvas.width, noteHeight );
+          }
+
+          playing = [];
+        }
+
+        // Points of intersection.
+        var points = [];
+        function drawPaths( ctx ) {
           ctx.save();
           ctx.translate( -position, 0 );
 
+          // Draw paths.
           ctx.beginPath();
 
-          // Points of intersection.
-          var points = [],
-              intersection;
-
+          var intersection;
           var i, j, il, jl;
           var x0, y0, x1, y1;
           for ( i = 0, il = paths.length; i < il; i++ ) {
@@ -150,6 +163,7 @@ angular.module( 'toneScratcherApp' )
               );
 
               if ( intersection ) {
+                playing[ Math.floor( intersection.y / noteHeight ) ] = true;
                 points.push( intersection );
               }
             }
@@ -168,21 +182,42 @@ angular.module( 'toneScratcherApp' )
 
           ctx.shadowBlur = 0;
 
-          for ( i = points.length - 1; i >= 0; i-- ) {
+          ctx.restore();
+        }
+
+        function drawIntersections( ctx ) {
+          ctx.save();
+          ctx.translate( -position, 0 );
+
+          for ( var i = points.length - 1; i >= 0; i-- ) {
             ctx.beginPath();
-            ctx.arc( points[i].x, points[i].y, 20, 0, 2 * Math.PI );
+            ctx.arc( points[i].x, points[i].y, 10, 0, 2 * Math.PI );
             ctx.fillStyle = 'red';
             ctx.fill();
           }
 
           ctx.restore();
 
+          // Empty the interseciton points array after drawing is done.
+          points = [];
+        }
+
+        function drawMouse( ctx ) {
           if ( mouse ) {
             ctx.beginPath();
             ctx.arc( mouse.x, mouse.y, Math.random() * 6 + 8, 0, 2 * Math.PI );
             ctx.fillStyle = 'rgba( 255, 255, 255, 0.25 )';
             ctx.fill();
           }
+        }
+
+        function draw( ctx ) {
+          ctx.clearRect( 0, 0, canvas.width, canvas.height );
+
+          drawKeys( ctx );
+          drawPaths( ctx );
+          drawIntersections( ctx );
+          drawMouse( ctx );
         }
 
         element.bind( 'mousemove', function( event ) {
