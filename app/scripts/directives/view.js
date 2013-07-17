@@ -1,7 +1,9 @@
 'use strict';
 
-// Given two line segments: (x0, y0) -> (x1, y1)  and (x2, y2) -> (x3, y3).
-// Return the coordinate of the intersection, or null if no intersection.
+/**
+ * Given two line segments: (x0, y0) -> (x1, y1)  and (x2, y2) -> (x3, y3).
+ * Return the coordinate of the intersection, or null if no intersection.
+ */
 function intersectSegments( x0, y0, x1, y1, x2, y2, x3, y3 ) {
   // Calculate the determinant: dx0 * dy1  - dx1 * dy0.
   var det = ( x1 - x0 ) * ( y3 - y2 ) - ( x3 - x2 ) * ( y1 - y0 );
@@ -24,14 +26,51 @@ function intersectSegments( x0, y0, x1, y1, x2, y2, x3, y3 ) {
     return null;
   }
 
-  return {
-    x: x0 + ( x1 - x0 ) * s,
-    y: y0 + ( y1 - y0 ) * s,
-  };
+  return segmentParameter( x0, y0, x1, y1, s );
 }
 
 /**
- * Main view for displaying
+ * Given a line segment, an x-position, and the height, return the intersection
+ * of the line segment with the vertical at the x-position.
+ */
+function intersectSegmentVertical( x0, y0, x1, y1, x, height ) {
+  var det = ( x1 - x0 ) * height;
+  if ( det === 0 ) {
+    return null;
+  }
+
+  var detInverse = 1 / det;
+
+  // Parameters.
+  var s = -height * ( x0 - x ) * detInverse,
+      t = ( ( x1 - x0 ) * y0 - ( x0 - x ) * ( y1 - y0 ) ) * detInverse;
+
+  // If the parameters are exceed the line segment bounds.
+  if ( 0 > s || s > 1 ) {
+    return null;
+  }
+
+  if ( 0 > t || t > 1 ) {
+    return null;
+  }
+
+  return segmentParameter( x0, y0, x1, y1, s );
+}
+
+/**
+ * Given a line segment and a parameter, return the coordinates of the point
+ * at the parameter.
+ */
+function segmentParameter( x0, y0, x1, y1, parameter ) {
+  return {
+    x: x0 + ( x1 - x0 ) * parameter,
+    y: y0 + ( y1 - y0 ) * parameter,
+  };
+}
+
+
+/**
+ * Main view for displaying the canvas.
  */
 angular.module( 'toneScratcherApp' )
   .directive( 'view', function() {
@@ -51,8 +90,14 @@ angular.module( 'toneScratcherApp' )
         // Generate Audiolet voices.
         var audiolet = new Audiolet( 44100, 2 );
 
-        var noteHeight = 20,
-            noteCount = Math.floor( canvas.height / noteHeight ),
+        function MajorPentatonicScale() {
+          Scale.call( this, [ 0, 2, 4, 7, 9 ] );
+        }
+
+        extend( MajorPentatonicScale, Scale );
+
+        var noteCount = 9,
+            noteHeight = Math.floor( canvas.height / noteCount ),
             prevPlaying = [],
             playing = [];
 
@@ -63,12 +108,6 @@ angular.module( 'toneScratcherApp' )
 
         var attack = 0.01,
             release = 1;
-
-        function MajorPentatonicScale() {
-          Scale.call( this, [ 0, 2, 4, 7, 9 ] );
-        }
-
-        extend( MajorPentatonicScale, Scale );
 
         var scale = new MajorPentatonicScale();
 
@@ -105,7 +144,7 @@ angular.module( 'toneScratcherApp' )
             currTime = prevTime;
 
         // Number of pixels the path shifts down in a second.
-        var velocityX = 100;
+        var velocityX = 500;
 
         var position;
 
@@ -144,10 +183,10 @@ angular.module( 'toneScratcherApp' )
           if ( mouse && mouseDown ) {
             var lastIndex = path.length - 1;
             path.push([{
-              x: lastIndex >= 0 ? path[ lastIndex ][1].x : mouse.x + position,
+              x: lastIndex >= 0 ? path[ lastIndex ][1].x : mouse.x,
               y: lastIndex >= 0 ? path[ lastIndex ][1].y : mouse.y
             }, {
-              x: mouse.x + position,
+              x: mouse.x,
               y: mouse.y
             }]);
           }
@@ -157,12 +196,17 @@ angular.module( 'toneScratcherApp' )
           }
 
           position += velocityX * dt;
+          if ( position > canvas.width ) {
+            position = 0;
+          }
+
           scope.config.position = position;
           scope.config.max = Math.max( parseFloat( scope.config.max ), position );
           scope.$apply();
         }
 
         function drawKeys( ctx ) {
+          var note, freq;
           for ( var i = 0; i < noteCount; i++ ) {
             if ( playing[i] ) {
               ctx.fillStyle = 'green';
@@ -174,13 +218,16 @@ angular.module( 'toneScratcherApp' )
 
             ctx.fillStyle = 'white';
             ctx.fillText( i, 20, noteHeight * i );
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            note = noteCount - i - 1;
+            freq = scale.getFrequency( note % 5, 110, Math.floor( note / 5 ) );
+            freq = Math.round( freq * 1e3 ) * 1e-3;
+            ctx.fillText( freq, 40, noteHeight * i );
           }
         }
 
         function drawPaths( ctx ) {
-          ctx.save();
-          ctx.translate( -position, 0 );
-
           // Draw paths.
           ctx.beginPath();
 
@@ -191,9 +238,12 @@ angular.module( 'toneScratcherApp' )
             playing[i] = false;
           }
 
+          var scaleLength
+
           var intersection;
           var il, j, jl;
           var x0, y0, x1, y1;
+          var note, freq, voice;
           for ( i = 0, il = paths.length; i < il; i++ ) {
             for ( j = 0, jl = paths[i].length; j < jl; j++ ) {
               x0 = paths[i][j][0].x;
@@ -202,21 +252,20 @@ angular.module( 'toneScratcherApp' )
               y1 = paths[i][j][1].y;
 
               // Skip drawing if we can't see it.
-              if ( x0 < position && x1 < position ) {
+              if ( x0 < 0 && x1 < 0 ) {
                 continue;
               }
 
-              if ( x0 > position + canvas.width && x1 > position + canvas.width ) {
+              if ( x0 > canvas.width && x1 > canvas.width ) {
                 continue;
               }
 
               ctx.moveTo( x0, y0 );
               ctx.lineTo( x1, y1 );
 
-              intersection = intersectSegments(
+              intersection = intersectSegmentVertical(
                 x0, y0,
                 x1, y1,
-                position, 0,
                 position, noteCount * noteHeight
               );
 
@@ -228,9 +277,9 @@ angular.module( 'toneScratcherApp' )
 
                 playing[ noteIndex ] = true;
                 if ( !prevPlaying[ noteIndex ] ) {
-                  var note = noteCount - noteIndex;
-                  var freq = scale.getFrequency( note % 5, 110, Math.floor( note / 5 ) );
-                  var voice = new Voice( freq );
+                  note = noteCount - noteIndex - 1;
+                  freq = scale.getFrequency( note % 5, 110, Math.floor( note / 5 ) );
+                  voice = new Voice( freq );
                   voice.connect( audiolet.output );
                 }
 
@@ -242,22 +291,15 @@ angular.module( 'toneScratcherApp' )
           ctx.lineWidth = 4;
           ctx.strokeStyle = 'white';
           ctx.stroke();
-
-          ctx.restore();
         }
 
         function drawIntersections( ctx ) {
-          ctx.save();
-          ctx.translate( -position, 0 );
-
           for ( var i = points.length - 1; i >= 0; i-- ) {
             ctx.beginPath();
             ctx.arc( points[i].x, points[i].y, 10, 0, 2 * Math.PI );
             ctx.fillStyle = 'red';
             ctx.fill();
           }
-
-          ctx.restore();
 
           // Empty the interseciton points array after drawing is done.
           points = [];
