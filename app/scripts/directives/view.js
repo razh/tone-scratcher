@@ -62,7 +62,7 @@ angular.module( 'toneScratcherApp' )
         }
 
         var attack = 0.01,
-            release = 0.5;
+            release = 1;
 
         function MajorPentatonicScale() {
           Scale.call( this, [ 0, 2, 4, 7, 9 ] );
@@ -239,18 +239,9 @@ angular.module( 'toneScratcherApp' )
             }
           }
 
-          ctx.shadowBlur = Math.random() * 15 + 15;
-          ctx.shadowColor = 'rgba( 0, 255, 0, 1 )';
-
-          ctx.lineWidth = Math.random() * 4 + 2;
-          ctx.strokeStyle = 'rgba( 255, 255, 255, 0.5 )';
-          ctx.stroke();
-
-          ctx.lineWidth = 3;
+          ctx.lineWidth = 4;
           ctx.strokeStyle = 'white';
           ctx.stroke();
-
-          ctx.shadowBlur = 0;
 
           ctx.restore();
         }
